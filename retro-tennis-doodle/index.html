@@ -16,6 +16,10 @@
             overflow: hidden;
             font-family: 'Roboto', 'Arial', sans-serif;
             touch-action: none; /* Prevent zooming and scrolling */
+            transition: background-color 0.3s;
+        }
+        body.dark-mode {
+            background-color: #202124;
         }
         #game-container {
             position: relative;
@@ -25,6 +29,11 @@
             max-height: 600px;
             background-color: #fff;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+        }
+        body.dark-mode #game-container {
+            background-color: #303134;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
         }
         canvas {
             display: block;
@@ -61,6 +70,10 @@
             align-items: center;
             background: rgba(255, 255, 255, 0.85);
             z-index: 10;
+            transition: background-color 0.3s;
+        }
+        body.dark-mode #start-screen {
+            background: rgba(48, 49, 52, 0.85);
         }
         .title {
             font-size: 36px;
@@ -68,6 +81,10 @@
             margin-bottom: 20px;
             text-align: center;
             color: #202124;
+            transition: color 0.3s;
+        }
+        body.dark-mode .title {
+            color: #e8eaed;
         }
         .title span:nth-child(1) { color: #4285F4; }
         .title span:nth-child(2) { color: #EA4335; }
@@ -89,9 +106,28 @@
         .start-btn:hover {
             background-color: #3b78e7;
         }
+        #theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 20;
+            padding: 8px 10px;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        body.dark-mode #theme-toggle {
+            background-color: rgba(48, 49, 52, 0.8);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body>
+<button id="theme-toggle">🌙</button>
 
 <div id="game-container">
     <div id="score-board">
@@ -99,6 +135,7 @@
         <div id="computer-score">0</div>
     </div>
     <div id="start-screen">
+        <div id="game-over-text" style="font-size: 28px; font-weight: bold; margin-bottom: 10px; display: none; text-align: center;"></div>
         <div class="title">
             <span>T</span><span>e</span><span>n</span><span>n</span><span>i</span><span>s</span>
         </div>
@@ -114,8 +151,20 @@ window.onload = function() {
     const container = document.getElementById('game-container');
     const startScreen = document.getElementById('start-screen');
     const startBtn = document.getElementById('start-btn');
+    const gameOverText = document.getElementById('game-over-text');
     const playerScoreEl = document.getElementById('player-score');
     const computerScoreEl = document.getElementById('computer-score');
+    const themeToggle = document.getElementById('theme-toggle');
+
+    // Theme state
+    let isDarkMode = false;
+
+    themeToggle.addEventListener('click', () => {
+        isDarkMode = !isDarkMode;
+        document.body.classList.toggle('dark-mode', isDarkMode);
+        themeToggle.innerText = isDarkMode ? '☀️' : '🌙';
+        if (!gameRunning) draw(); // Redraw canvas instantly to update background
+    });
 
     // Google Colors
     const COLOR_BLUE = '#4285F4';
@@ -267,17 +316,28 @@ window.onload = function() {
         if (ball.x < 0) {
             computer.score++;
             computerScoreEl.innerText = computer.score;
-            resetBall(1);
+            if (computer.score >= 10) gameOver("Computer Wins!");
+            else resetBall(1);
         } else if (ball.x > GAME_WIDTH) {
             player.score++;
             playerScoreEl.innerText = player.score;
-            resetBall(-1);
+            if (player.score >= 10) gameOver("You Win!");
+            else resetBall(-1);
         }
+    }
+
+    function gameOver(message) {
+        gameRunning = false;
+        gameOverText.innerText = message;
+        gameOverText.style.display = 'block';
+        gameOverText.style.color = message === "You Win!" ? COLOR_BLUE : COLOR_RED;
+        startBtn.innerText = "Play Again";
+        startScreen.style.display = 'flex';
     }
 
     function draw() {
         // Clear canvas
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = isDarkMode ? '#303134' : '#fff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Apply scaling
@@ -331,6 +391,13 @@ window.onload = function() {
 
     startBtn.addEventListener('click', () => {
         startScreen.style.display = 'none';
+        
+        // Reset Scores
+        player.score = 0;
+        computer.score = 0;
+        playerScoreEl.innerText = player.score;
+        computerScoreEl.innerText = computer.score;
+
         gameRunning = true;
         resetBall(1);
         gameLoop();
