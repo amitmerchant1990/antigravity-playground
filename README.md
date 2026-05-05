@@ -17,6 +17,16 @@ Located in the `emergent-doodle/` directory, this is an interactive generative a
 - **Customizable:** Change the displayed text and the color palette on the fly.
 - **Export:** Easily download your generated artwork as a PNG image.
 
+### 🎾 Featured Project: Retro Tennis Doodle
+
+Located in the `retro-tennis-doodle/` directory, this is a classic retro tennis game reimagined with a modern Google Doodle aesthetic.
+
+**Features:**
+- **Single File Architecture:** The entire game runs from a single dependency-free `index.html` file.
+- **Mobile First Controls:** Playable via mouse drag or touch inputs.
+- **AI Opponent:** Features a simple AI paddle to play against.
+- **Responsive Canvas:** The game scales gracefully to fit your browser window while maintaining the play area aspect ratio.
+
 ## 🚀 How to Run
 
 This project is built using standard web technologies (HTML, CSS, Vanilla JavaScript) and uses the [p5.js](https://p5js.org/) library for canvas rendering. It has **zero build steps** and requires **no package installations**.
